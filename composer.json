@@ -1,0 +1,31 @@
+{
+    "name": "brightfish/enhanced_ini",
+    "description": "Read INI files with enhanced features",
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "^9.0@dev"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Peter Forret",
+            "email": "p.forret@brightfish.be"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Brightfish\\EnhancedIni\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    }
+}
