@@ -27,4 +27,11 @@ class ReadIniTest extends TestCase
         $this->assertArrayHasKey("chapter1",$data);
     }
 
+    public function test_get_default(){
+        $ei=New EnhancedIni();
+        $ei->load_ini("tests/ini/complex.ini");
+        $data=$ei->get_all();
+        $this->assertArrayHasKey("file",$data["chapter1"]);
+    }
+
 }
