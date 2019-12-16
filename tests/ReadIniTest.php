@@ -34,4 +34,10 @@ class ReadIniTest extends TestCase
         $this->assertArrayHasKey("file",$data["chapter1"]);
     }
 
+    public function test_substitute_key(){
+        $ei=New EnhancedIni();
+        $ei->load_ini("tests/ini/complex.ini");
+        $this->assertEquals("/temp/chapter1.txt",$ei->get("key","chapter1"));
+    }
+
 }
