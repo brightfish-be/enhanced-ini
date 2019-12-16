@@ -10,12 +10,12 @@ Read  .ini files with enhanced functionality:
 * the default chapter name is `[default]` but this can be changed to e.g. `[_default]` or `[def-values]`
 
 ```ini
-    [default]
-    key1=1
-    
-    [chapter1]
-    // key1 will exist and = 1
-    key2=2
+[default]
+key1=1
+
+[chapter1]
+// key1 will exist and = 1
+key2=2
 ```  
         
 ## {parameter} substitution
@@ -24,11 +24,11 @@ Read  .ini files with enhanced functionality:
 * The variable syntax is `{key}` by default, but can be changed to e.g. `{$key}` or `[key]`
 
 ```ini
-    [default]
-    domain=www.example.com
-    
-    [chapter1]
-    code=4567
-    url=https://{domain}}/?code={code}
-    // url will be = https://www.example.com/?code=4567
+[default]
+domain=www.example.com
+
+[chapter1]
+code=4567
+url=https://{domain}}/?code={code}
+// url will be = https://www.example.com/?code=4567
 ```

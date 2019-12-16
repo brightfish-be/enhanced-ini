@@ -96,13 +96,17 @@ class EnhancedIni
                 return [];
             }
             $resolved=[];
-            if(isset($this->data[$this->default_chapter])){
-                $keys=array_merge(array_keys($this->data[$this->default_chapter]),array_keys($this->data[$chapter]));
+            if(is_array($this->data[$chapter])){
+                if(isset($this->data[$this->default_chapter])){
+                    $keys=array_merge(array_keys($this->data[$this->default_chapter]),array_keys($this->data[$chapter]));
+                } else {
+                    $keys=array_keys($this->data[$chapter]);
+                }
+                foreach($keys as $key){
+                    $resolved[$key]=$this->get($key,$chapter);
+                }
             } else {
-                $keys=array_keys($this->data[$chapter]);
-            }
-            foreach($keys as $key){
-                $resolved[$key]=$this->get($key,$chapter);
+                $resolved=$this->data[$chapter];
             }
             return $resolved;
         }
