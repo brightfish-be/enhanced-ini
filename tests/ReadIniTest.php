@@ -20,6 +20,13 @@ class ReadIniTest extends TestCase
         $ei->load_ini("tests/ini/file_does_not_exist.ini");
     }
 
+    public function test_syntax_errors(){
+        $ei=New EnhancedIni();
+        //$this->expectException(\ErrorException::class);
+        $ei->load_ini("tests/ini/double.ini",true,true);
+        $this->assertEmpty($ei->get_all());
+    }
+
     public function test_load_normal(){
         $ei=New EnhancedIni();
         $ei->load_ini("tests/ini/example.ini");

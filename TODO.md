@@ -4,7 +4,7 @@
 
 * [x] implement default section `[default]`
 * [x] implement variable substitution `url=http://{domain}/test/`
-* [ ] check ini syntax problems (like duplicate chapters)
+* [x] check ini syntax problems (like duplicate chapters)
 * [ ] section nesting `[level1.level2.level3]`
 * [ ] key nesting `person.name.first=Peter`
 * [ ] predefined variables like `{DATE_Ymd}`

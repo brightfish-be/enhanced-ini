@@ -3,6 +3,7 @@
 
 namespace Brightfish\EnhancedIni;
 
+use ErrorException;
 use function PHPUnit\Framework\throwException;
 
 class EnhancedIni
@@ -25,11 +26,11 @@ class EnhancedIni
     /**
      * @param $substitute_characters
      * @return $this
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public function set_delimiters($substitute_characters){
         if(!$substitute_characters){
-            throw New \ErrorException("Delimiters cannot be empty");
+            throw New ErrorException("Delimiters cannot be empty");
         }
         $this->var_prefix=substr($substitute_characters,0,-1);
         $this->var_postfix=substr($substitute_characters,-1,1);
@@ -38,14 +39,19 @@ class EnhancedIni
 
     /**
      * @param $filename
-     * @param string $upon_errors
      * @param bool $typed_values
+     * @param bool $stop_on_syntax_error
      * @return $this
-     * @throws \Exception
+     * @throws ErrorException
      */
-    public function load_ini($filename,$typed_values=true){
+    public function load_ini($filename,$typed_values=true,$stop_on_syntax_error=false){
         if(!file_exists($filename)){
-            throw New \ErrorException("File [$filename] does not exist");
+            throw New ErrorException("File [$filename] does not exist");
+        }
+        if($stop_on_syntax_error){
+            if($this->has_syntax_errors($filename)){
+                return $this;
+            }
         }
         if($typed_values){
             $this->data=parse_ini_file($filename,true,INI_SCANNER_TYPED);
@@ -56,6 +62,30 @@ class EnhancedIni
         return $this;
     }
 
+    protected function has_syntax_errors($filename){
+        $raw=file_get_contents($filename);
+        $lines=explode("\n",$raw);
+        $sections=[];
+        $warnings=[];
+        foreach($lines as $line){
+            if($this->preg_extract("^\[(%b)\]",$line)){
+                // is section header
+                $section_name=$this->preg_extract("^\[(%b)\]",$line);
+                if(isset($sections[$section_name])){
+                    $warnings[]=sprintf("[%s]: duplicate section definition",$section_name);
+                } else {
+                    $sections[$section_name]=$section_name;
+                }
+            }
+            if($this->preg_extract("^[\s\t]+\[(%b)\]",$line)){
+                // is section header
+                $section_name=$this->preg_extract("\[(%b)\]",$line);
+                $warnings[]=sprintf("[%s]: spaces before section definition",$section_name);
+            }
+        }
+        //print_r($warnings);
+        return $warnings;
+    }
     /**
      * @param $key
      * @param bool $chapter
@@ -80,7 +110,7 @@ class EnhancedIni
      */
     public function get_all($chapter="")
     {
-        if(!$this->ini_loaded)  return false;
+        if(!$this->ini_loaded)  return [];
         if(!$chapter){
             // no chapter specified - get all chapters - recursive
             $resolved=[];
@@ -113,24 +143,6 @@ class EnhancedIni
     }
 
     // ----------------------- PROTECTED STUFF
-
-    /**
-     * @param $key
-     * @param string $chapter
-     * @return array|mixed|string
-     */
-    protected function get_value($key,$chapter=""){
-        if(!$this->ini_loaded)  return [];
-        $value="";
-        if(isset($this->data[$chapter][$key])){
-            $value=$this->data[$chapter][$key];
-        }
-        if($chapter <> $this->default_chapter AND isset($this->data[$this->default_chapter][$key])){
-            $value=$this->data[$this->default_chapter][$key];
-        }
-        if(!$value) return $value;
-        return $this->resolve_value($value,$chapter);
-    }
 
     /**
      * @param $value
@@ -168,5 +180,30 @@ class EnhancedIni
 
     }
 
+    /**
+     * @param $pattern
+     * @param $subject
+     * @param bool $enhanced
+     * @return mixed|string
+     */
+    public function preg_extract($pattern,$subject,$enhanced=true){
+        $matches=[];
+        if($enhanced){
+            //print_r("preg before = '$pattern'\n");
+            if(substr($pattern,0,1)<>substr($pattern,-1,1)){
+                $pattern="|${pattern}|";
+                $pattern=str_replace("%t","[^<>]*",$pattern);
+                $pattern=str_replace("%q","[^\"]*",$pattern);
+                $pattern=str_replace("%b","[^\]\[]*",$pattern);
+            }
+            //print_r("preg after = '$pattern'\n");
+        }
+        preg_match($pattern,$subject,$matches);
+        if($matches){
+            return $matches[1];
+        }
+        return "";
+
+    }
 
 }
